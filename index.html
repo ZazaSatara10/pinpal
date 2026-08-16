@@ -9,6 +9,13 @@
   <link rel="icon" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/icon.svg">
   <title>Pinpal — Save &amp; Navigate Back</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J7R3P2XHEF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-J7R3P2XHEF');
+  </script>
   <style>
     :root {
       --bg: #f5f8ff;
@@ -641,7 +648,7 @@
       const stepsEl = document.getElementById('permSteps')
       let html = ''
       if(!window.isSecureContext){
-        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> during development.</p>'
+        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em>.</p>'
       }
       if(platform === 'android'){
         html += '<ol>'+
@@ -754,4 +761,3 @@
   </script>
 </body>
 </html>
-

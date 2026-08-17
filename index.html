@@ -1,21 +1,15 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1"> 
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1070ff">
   <meta name="description" content="Save a location and navigate back using Google Maps. Works across Android and Windows." />
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/icon.svg">
   <title>Pinpal — Save &amp; Navigate Back</title>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J7R3P2XHEF"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}    
-    gtag('js', new Date());
-    gtag('config', 'G-J7R3P2XHEF');
-  </script>
   <style>
     :root {
       --bg: #f5f8ff;
@@ -382,6 +376,14 @@
       }
     }
   </style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J7R3P2XHEF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} 
+    gtag('js', new Date());
+    gtag('config', 'G-J7R3P2XHEF');
+  </script>
 </head>
 <body>
   <main class="app-shell">
@@ -595,39 +597,42 @@
           try{
             const mode = document.getElementById('mode').value
             const dest = `${it.lat},${it.lng}`
+            const intentUrl = `intent://navigate?q=${dest}#Intent;package=com.google.android.apps.maps;scheme=google.navigation;end`
+            try{ window.location.href = intentUrl }catch(e){}
 
-            // Try to get current position and open Google Maps directions with origin when possible.
-            try{
-              const pos = await getCurrentPosition()
-              const origin = `${pos.coords.latitude},${pos.coords.longitude}`
-              const mapsWeb = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
-              window.open(mapsWeb, '_blank')
-              status('opened Google Maps')
-            }catch(e){
-              const mapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
-              window.open(mapsWeb, '_blank')
-              status('opened Google Maps')
-            }
-
+            setTimeout(async ()=>{
+              try{
+                const pos = await getCurrentPosition()
+                const mapsWeb = `https://www.google.com/maps/dir/?api=1&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${dest}&travelmode=${mode}`
+                window.open(mapsWeb, '_blank')
+                status('opened Google Maps')
+              }catch(e){
+                const mapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${mode}`
+                window.open(mapsWeb, '_blank')
+                status('opened Google Maps')
+              }
+            }, 1200)
           }catch(e){ status('navigation failed: '+(e.message||e)) }
         }
-        const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='Delete'
-        delBtn.onclick = ()=>{ items.splice(idx,1); saveAll(items) }
-
-        // New: share via WhatsApp button for this saved location
-        const shareBtnLocal = document.createElement('button'); shareBtnLocal.className = 'btn btn-secondary'; shareBtnLocal.textContent = 'Share'
-        shareBtnLocal.title = 'Share this location via WhatsApp'
-        shareBtnLocal.onclick = ()=>{
-          const mode = document.getElementById('mode').value || 'driving'
-          const dest = `${it.lat},${it.lng}`
-          // Use Google Maps directions link so the recipient opens Maps and can navigate to the location
-          const mapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
-          const text = (it.name ? it.name + ' - ' : '') + 'Navigate here: ' + mapsLink
-          const wa = 'https://wa.me/?text=' + encodeURIComponent(text)
-          window.open(wa, '_blank')
+        const sharePlaceBtn = document.createElement('button'); sharePlaceBtn.className='btn btn-secondary'; sharePlaceBtn.textContent='Share'
+        sharePlaceBtn.onclick = ()=>{
+          try{
+            const mode = document.getElementById('mode').value || 'driving'
+            const dest = `${it.lat},${it.lng}`
+            const mapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${mode}`
+            const label = it.name ? `${it.name} — ` : ''
+            const text = `${label}Navigate here: ${mapsWeb}`
+            const payload = encodeURIComponent(text)
+            const wa = 'https://wa.me/?text=' + payload
+            window.open(wa, '_blank')
+          }catch(e){
+            alert('Unable to open share dialog: '+(e&&e.message?e.message:e))
+          }
         }
 
-        right.appendChild(showBtn); right.appendChild(navBtn); right.appendChild(shareBtnLocal); right.appendChild(delBtn)
+        const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='Delete'
+        delBtn.onclick = ()=>{ items.splice(idx,1); saveAll(items) }
+        right.appendChild(showBtn); right.appendChild(navBtn); right.appendChild(sharePlaceBtn); right.appendChild(delBtn)
         el.appendChild(left); el.appendChild(right); list.appendChild(el)
       })
     }
@@ -661,7 +666,7 @@
       const stepsEl = document.getElementById('permSteps')
       let html = ''
       if(!window.isSecureContext){
-        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> for testing.</p>'
+        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> during development.</p>'
       }
       if(platform === 'android'){
         html += '<ol>'+
@@ -774,3 +779,4 @@
   </script>
 </body>
 </html>
+

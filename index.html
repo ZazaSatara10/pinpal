@@ -12,7 +12,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-J7R3P2XHEF"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){dataLayer.push(arguments);}    
     gtag('js', new Date());
     gtag('config', 'G-J7R3P2XHEF');
   </script>
@@ -614,7 +614,21 @@
         }
         const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='Delete'
         delBtn.onclick = ()=>{ items.splice(idx,1); saveAll(items) }
-        right.appendChild(showBtn); right.appendChild(navBtn); right.appendChild(delBtn)
+
+        // New: share via WhatsApp button for this saved location
+        const shareBtnLocal = document.createElement('button'); shareBtnLocal.className = 'btn btn-secondary'; shareBtnLocal.textContent = 'Share'
+        shareBtnLocal.title = 'Share this location via WhatsApp'
+        shareBtnLocal.onclick = ()=>{
+          const mode = document.getElementById('mode').value || 'driving'
+          const dest = `${it.lat},${it.lng}`
+          // Use Google Maps directions link so the recipient opens Maps and can navigate to the location
+          const mapsLink = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${mode}`
+          const text = (it.name ? it.name + ' - ' : '') + 'Navigate here: ' + mapsLink
+          const wa = 'https://wa.me/?text=' + encodeURIComponent(text)
+          window.open(wa, '_blank')
+        }
+
+        right.appendChild(showBtn); right.appendChild(navBtn); right.appendChild(shareBtnLocal); right.appendChild(delBtn)
         el.appendChild(left); el.appendChild(right); list.appendChild(el)
       })
     }
@@ -648,7 +662,7 @@
       const stepsEl = document.getElementById('permSteps')
       let html = ''
       if(!window.isSecureContext){
-        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em>.</p>'
+        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> while developing.</p>'
       }
       if(platform === 'android'){
         html += '<ol>'+

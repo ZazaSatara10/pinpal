@@ -595,21 +595,20 @@
           try{
             const mode = document.getElementById('mode').value
             const dest = `${it.lat},${it.lng}`
-            const intentUrl = `intent://navigate?q=${dest}#Intent;package=com.google.android.apps.maps;scheme=google.navigation;end`
-            try{ window.location.href = intentUrl }catch(e){}
 
-            setTimeout(async ()=>{
-              try{
-                const pos = await getCurrentPosition()
-                const mapsWeb = `https://www.google.com/maps/dir/?api=1&origin=${pos.coords.latitude},${pos.coords.longitude}&destination=${dest}&travelmode=${mode}`
-                window.open(mapsWeb, '_blank')
-                status('opened Google Maps')
-              }catch(e){
-                const mapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${mode}`
-                window.open(mapsWeb, '_blank')
-                status('opened Google Maps')
-              }
-            }, 1200)
+            // Try to get current position and open Google Maps directions with origin when possible.
+            try{
+              const pos = await getCurrentPosition()
+              const origin = `${pos.coords.latitude},${pos.coords.longitude}`
+              const mapsWeb = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
+              window.open(mapsWeb, '_blank')
+              status('opened Google Maps')
+            }catch(e){
+              const mapsWeb = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
+              window.open(mapsWeb, '_blank')
+              status('opened Google Maps')
+            }
+
           }catch(e){ status('navigation failed: '+(e.message||e)) }
         }
         const delBtn = document.createElement('button'); delBtn.className='btn btn-danger'; delBtn.textContent='Delete'
@@ -622,7 +621,7 @@
           const mode = document.getElementById('mode').value || 'driving'
           const dest = `${it.lat},${it.lng}`
           // Use Google Maps directions link so the recipient opens Maps and can navigate to the location
-          const mapsLink = `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=${mode}`
+          const mapsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=${encodeURIComponent(mode)}`
           const text = (it.name ? it.name + ' - ' : '') + 'Navigate here: ' + mapsLink
           const wa = 'https://wa.me/?text=' + encodeURIComponent(text)
           window.open(wa, '_blank')
@@ -662,7 +661,7 @@
       const stepsEl = document.getElementById('permSteps')
       let html = ''
       if(!window.isSecureContext){
-        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> while developing.</p>'
+        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhos...'
       }
       if(platform === 'android'){
         html += '<ol>'+

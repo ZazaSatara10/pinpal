@@ -665,7 +665,7 @@
       const stepsEl = document.getElementById('permSteps')
       let html = ''
       if(!window.isSecureContext){
-        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em> during development.</p>'
+        html += '<p><strong>Note:</strong> This page is not served over HTTPS. Geolocation requires a secure context (HTTPS) or localhost. Serve the page over HTTPS or open it from <em>http://localhost</em>.</p>'
       }
       if(platform === 'android'){
         html += '<ol>'+
@@ -778,4 +778,3 @@
   </script>
 </body>
 </html>
-
